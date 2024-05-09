@@ -1,17 +1,13 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
 import org.springframework.web.bind.annotation.*;
-import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserServiceImpl;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Controller
@@ -19,14 +15,12 @@ public class AdminController {
 
     private UserServiceImpl userService;
     private RoleService roleService;
-    private PasswordEncoder passwordEncoder;
 
 
     @Autowired
-    public void setUserService(UserServiceImpl userService, RoleService roleService, PasswordEncoder passwordEncoder) {
+    public void setUserService(UserServiceImpl userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @RequestMapping(value = "/admin", method = RequestMethod.GET)
@@ -38,10 +32,7 @@ public class AdminController {
 
     @RequestMapping(value = "/user/add", method = RequestMethod.POST)
     public String addUser(@ModelAttribute("user") User user, @RequestParam("role") String role) {
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleService.getRoleByName(role));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(roles);
+        user.setRoles(Set.of(roleService.getRoleByName(role)));
         userService.addUser(user);
         return "redirect:/admin";
     }
@@ -61,10 +52,7 @@ public class AdminController {
 
     @PostMapping("/update/{id}")
     public String updateUser(@ModelAttribute("user") User user, @RequestParam("role") String role) {
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleService.getRoleByName(role));
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(roles);
+        user.setRoles(Set.of(roleService.getRoleByName(role)));
         userService.updateUser(user);
         return "redirect:/admin";
     }
